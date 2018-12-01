@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .district-div {
+            width: 800px;
+            height: 500px;
+            border: 1px solid black;
+            text-align: center;
+            float: left;
+        }
+
+        .district-div>div {
+            float: left;
+            margin: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box">
+        <box-province :districtarr='districtList' :level='3' @select-id='fn($event)'></box-province>
+        <box-province :districtarr='districtList' :level='2'></box-province>
+        <box-province :districtarr='districtList' :level='1'></box-province>
+
+
+        <!-- <input type="submit" name="submit" id="sub" value="提交"/> -->
+
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+
+    const BoxProvince = Vue.component('box-province', {
+        props: {
+            districtarr: {
+                type: Array,
+                required: true
+            },
+            level: {
+                type: Number,
+                default: 1
+            }
+
+        },
+        data() {
+            return {
+                select1: '1',
+                select2: '',
+                select3: '',
+                level1: true,
+                level2: true,
+                level3: true,
+                cityData: []
+            }
+        },
+        computed: {
+            selectValue1() {
+                this.districtarr.map((item) => {
+//判断第一个select框的value id是否等于数组中的某一个id
+                    if (this.select1 === item.provinceId) {
+                        console.log(item)
+                        this.cityData = item.city;
+                    }
+                    console.log(this.cityData)
+
+                })
+                this.select2 = this.cityData[0].cityId
+                return this.cityData;
+            },
+
+            selectValue2() {
+                let arr = [];
+                this.cityData.map((item) => {
+                    if (this.select2 === item.cityId) {
+                        console.log(this.select2, item.cityId)
+                        arr = item.area
+                    }
+                    console.log(arr)
+                })
+
+                this.select3 = arr[0].areaId;
+                return arr
+            },
+
+
+
+        },
+        updated(){
+            //返回给后台的ID
+              this.$emit(('select-id'), {
+                    pid: this.select1,
+                    cid: this.select2,
+                    aid: this.select3,
+
+
+                })
+        },
+      
+        created() {
+            console.log(this.districtarr);
+            if (this.level === 1) {
+                this.level2 = false;
+                this.level3 = false
+            }
+            if (this.level === 2) {
+                this.level3 = false
+            }
+
+               
+        },
+        template: `<div class='district-div'>
+        <div>
+            <p>请选择省</p>
+                <select v-model='select1' v-if='level1'>
+                    <option v-for='(item,index) of districtarr' :value='item.provinceId'>{{item.provinceName}}</option>    
+                </select>
+         </div>   
+            <div>
+            <p>请选择市</p>
+                <select v-model='select2' v-if='level2'>
+                    <option v-for='(item,index) of selectValue1'  :value='item.cityId'>{{item.cityName}}</option>    
+                </select>
+                </div>
+
+        <div>
+            <p>请选择市</p>
+                <select v-model='select3' v-if='level3'>
+                    <option  v-for='(item,index) of selectValue2'  :value='item.areaId'>{{item.areaName}}</option>    
+                </select>
+                </div>
+                <div>
+                <p>输入详细地址</p>
+                <input type='text'/>
+                </div>
+            </div>`
+    });
+
+
+
+
+    const vm = new Vue({
+        el: '#box',
+        data: {
+            districtList: [],
+        },
+        methods: {
+            fn(obj) {
+
+                console.log(obj)
+            }
+        },
+        created() {
+
+            const district = [
+                {
+                    provinceName: '安徽省',
+                    provinceId: '1',
+                    city: [{
+                        cityName: '亳州市',
+                        cityId: '11',
+                        area: [{
+                            areaName: '涡阳县',
+                            areaId: '111',
+                        }, {
+                            areaName: '谯城区',
+                            areaId: '112',
+                        }, {
+                            areaName: '蒙城县',
+                            areaId: '113',
+                        }]
+                    }, {
+                        cityName: '六安市',
+                        cityId: '12',
+                        area: [{
+                            areaName: '金安区',
+                            areaId: '121',
+                        }, {
+                            areaName: '裕安区',
+                            areaId: '122',
+                        }, {
+                            areaName: '金寨县',
+                            areaId: '123',
+                        }]
+
+                    }]
+
+                }, {
+                    provinceName: '江苏省',
+                    provinceId: '2',
+                    city: [{
+                        cityName: '苏州市',
+                        cityId: '21',
+                        area: [{
+                            areaName: '吴中区',
+                            areaId: '211'
+                        }, {
+                            areaName: '姑苏区',
+                            areaId: '212'
+                        }, {
+                            areaName: '高新区',
+                            areaId: '213'
+                        }]
+
+                    }, {
+                        cityName: '常州市',
+                        cityId: '22',
+                        area: [{
+                            areaName: '常州区1',
+                            areaId: '221'
+                        }, {
+                            areaName: '常州区2',
+                            areaId: '222'
+                        }]
+                    }]
+                }, {
+                    provinceName: '上海',
+                    provinceId: '3',
+                    city: [{
+                        cityName: '上海市',
+                        cityId: '31',
+                        area: [{
+                            areaName: '上海1',
+                            areaId: '311'
+                        }, {
+                            areaName: '上海2',
+                            areaId: '312'
+                        }]
+                    }]
+                }, {
+                    provinceName: '广东省',
+                    provinceId: '4',
+                    city: [{
+                        cityName: '广州市',
+                        cityId: '41',
+                        area: [{
+                            areaName: '广州1',
+                            areaId: '411'
+                        }, {
+                            areaName: '广州2',
+                            areaId: '412'
+                        }
+                        ]
+
+                    }, {
+                        cityName: '深圳市',
+                        cityId: '42',
+                        area: [{
+                            areaName: '深圳1',
+                            areaId: '421'
+                        }, {
+                            areaName: '深圳2',
+                            areaId: '422'
+                        }]
+                    }]
+                }]
+
+
+            this.districtList = district;
+
+        },
+        components: {
+
+        }
+
+    })
+</script>
+
+</html>
